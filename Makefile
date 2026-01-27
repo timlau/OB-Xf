@@ -15,3 +15,8 @@ build: setup
 clean:
 	@echo "Cleaning build directory..."
 	@rm -rf ${BUILDDIR}
+.PHONY: clean
+
+run:
+	./build/obxf_products/OB-Xf
+.PHONY: run
