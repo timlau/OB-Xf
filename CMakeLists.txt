@@ -34,56 +34,58 @@ include(libs/sst/sst-plugininfra/cmake/git-version-functions.cmake)
 version_from_versionfile_or_git()
 message(STATUS "DISPLAY_VERSION=${GIT_IMPLIED_DISPLAY_VERSION}; COMMIT_HASH=${GIT_COMMIT_HASH}; BRANCH=${GIT_BRANCH}")
 
+include(cmake/CPM.cmake)
+
 add_subdirectory(libs)
 message(STATUS "After libs, MODULE_PATH is ${CMAKE_MODULE_PATH}")
 version_from_versionfile_or_git()
 
 if(ENABLE_ASAN AND ENABLE_TSAN)
-    message(FATAL_ERROR "Cannot enable both AddressSanitizer and ThreadSanitizer at the same time")
+  message(FATAL_ERROR "Cannot enable both AddressSanitizer and ThreadSanitizer at the same time")
 endif()
 
 if(ENABLE_ASAN)
-    message(STATUS "Building with AddressSanitizer enabled")
+  message(STATUS "Building with AddressSanitizer enabled")
 
-    if(MSVC)
-        add_compile_options(/fsanitize=address)
-        message(STATUS "Note: For MSVC, you may need to set _NO_DEBUG_HEAP=1 environment variable")
-    else()
-        add_compile_options(-fsanitize=address -fno-omit-frame-pointer)
-        add_link_options(-fsanitize=address)
-    endif()
+  if(MSVC)
+    add_compile_options(/fsanitize=address)
+    message(STATUS "Note: For MSVC, you may need to set _NO_DEBUG_HEAP=1 environment variable")
+  else()
+    add_compile_options(-fsanitize=address -fno-omit-frame-pointer)
+    add_link_options(-fsanitize=address)
+  endif()
 endif()
 
 if(ENABLE_TSAN)
-    if(WIN32)
-        message(WARNING "ThreadSanitizer is not supported on Windows. Disabling TSAN.")
-        set(ENABLE_TSAN OFF)
-    else()
-        message(STATUS "Building with ThreadSanitizer enabled")
-        add_compile_options(-fsanitize=thread -fno-omit-frame-pointer)
-        add_link_options(-fsanitize=thread)
+  if(WIN32)
+    message(WARNING "ThreadSanitizer is not supported on Windows. Disabling TSAN.")
+    set(ENABLE_TSAN OFF)
+  else()
+    message(STATUS "Building with ThreadSanitizer enabled")
+    add_compile_options(-fsanitize=thread -fno-omit-frame-pointer)
+    add_link_options(-fsanitize=thread)
 
-        if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-            message(STATUS "Setting optimization level for ThreadSanitizer")
-            add_compile_options(-O1)
-        endif()
+    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+      message(STATUS "Setting optimization level for ThreadSanitizer")
+      add_compile_options(-O1)
     endif()
+  endif()
 endif()
 
 set(ENABLE_ASIO OFF)
 set(SSTPI_ASIOSDK "${CMAKE_SOURCE_DIR}/libs/sst/sst-plugininfra/libs/asiosdk")
 
 if(EXISTS "${CMAKE_SOURCE_DIR}/libs/sst/sst-plugininfra/libs/asiosdk")
-    if(WIN32)
-        message(STATUS "ASIO SDK located in sst-plugininfra. Enabling!")
-        add_compile_definitions(JUCE_ASIO=1)
-        set(ENABLE_ASIO ON)
-    else()
-        message(STATUS "ASIO is only available on Windows!")
-        add_compile_definitions(JUCE_ASIO=0)
-    endif()
+  if(WIN32)
+    message(STATUS "ASIO SDK located in sst-plugininfra. Enabling!")
+    add_compile_definitions(JUCE_ASIO=1)
+    set(ENABLE_ASIO ON)
+  else()
+    message(STATUS "ASIO is only available on Windows!")
+    add_compile_definitions(JUCE_ASIO=0)
+  endif()
 else()
-    message(STATUS "ASIO SDK not found! Disabling ASIO support.")
+  message(STATUS "ASIO SDK not found! Disabling ASIO support.")
 endif()
 
 add_compile_definitions(JUCE_WEB_BROWSER=0)
@@ -92,11 +94,11 @@ add_compile_definitions(JUCE_USE_CURL=0)
 list(APPEND OBXF_JUCE_FORMATS VST3 Standalone)
 
 if(APPLE)
-    list(APPEND OBXF_JUCE_FORMATS AU)
+  list(APPEND OBXF_JUCE_FORMATS AU)
 endif()
 
 if(UNIX AND NOT APPLE)
-    list(APPEND OBXF_JUCE_FORMATS LV2)
+  list(APPEND OBXF_JUCE_FORMATS LV2)
 endif()
 
 juce_add_plugin(OB-Xf
@@ -171,9 +173,9 @@ target_link_libraries(OB-Xf PRIVATE
 target_compile_definitions(OB-Xf PRIVATE JUCE_VST3_CAN_REPLACE_VST2=0 OBXF_VERSION_STR="${PROJECT_VERSION}")
 
 if(MSVC)
-    target_compile_options(OB-Xf PRIVATE /W2)
+  target_compile_options(OB-Xf PRIVATE /W2)
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-    target_compile_options(OB-Xf PRIVATE
+  target_compile_options(OB-Xf PRIVATE
         -Wall
         # -Wextra
         # -Wpedantic
@@ -182,20 +184,20 @@ elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
         -Wno-macro-redefined
     )
 else()
-    target_compile_options(OB-Xf PRIVATE
+  target_compile_options(OB-Xf PRIVATE
             -Wall -Werror
             $<$<COMPILE_LANGUAGE:C,OBJC>:-Wno-maybe-uninitialized> # for juce
     )
-    if(${CMAKE_CXX_COMPILER_VERSION} LESS 13)
-        target_compile_options(OB-Xf PRIVATE
+  if(${CMAKE_CXX_COMPILER_VERSION} LESS 13)
+    target_compile_options(OB-Xf PRIVATE
                -Wno-use-after-free # gcc12.2 just gets this wrong
         )
-    endif()
-        if(${CMAKE_CXX_COMPILER_VERSION} GREATER 13)
-        target_compile_options(OB-Xf PRIVATE
+  endif()
+  if(${CMAKE_CXX_COMPILER_VERSION} GREATER 13)
+    target_compile_options(OB-Xf PRIVATE
                 -Wno-maybe-uninitialized # gcc14 complains about juce_Var semi-correctly
         )
-    endif()
+  endif()
 endif()
 
 clap_juce_extensions_plugin(TARGET OB-Xf
@@ -210,6 +212,6 @@ include(basic_installer)
 
 # a handy rule to install the assets on linux systems
 if (UNIX AND NOT APPLE)
-    install(DIRECTORY "${CMAKE_SOURCE_DIR}/assets/installer/Surge Synth Team"
+  install(DIRECTORY "${CMAKE_SOURCE_DIR}/assets/installer/Surge Synth Team"
             DESTINATION ${CMAKE_INSTALL_PREFIX}/share)
 endif()
