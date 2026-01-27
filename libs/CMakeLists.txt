@@ -6,7 +6,8 @@ set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH}" PARENT_SCOPE)
 # Dependencies
 CPMAddPackage("gh:/juce-framework/JUCE#8.0.11")
 CPMAddPackage("gh:/free-audio/clap-juce-extensions#main")
-CPMAddPackage("gh:fmtlib/fmt#12.1.0")
+find_package(fmt)
+#CPMAddPackage("gh:fmtlib/fmt#12.1.0")
 # add_subdirectory(JUCE EXCLUDE_FROM_ALL)
 # add_subdirectory(fmt EXCLUDE_FROM_ALL)
 
