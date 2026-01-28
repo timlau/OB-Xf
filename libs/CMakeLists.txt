@@ -4,6 +4,7 @@ add_subdirectory(sst/sst-cmake)
 set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH}" PARENT_SCOPE)
 
 # Dependencies
+include(../cmake/CPM.cmake)
 CPMAddPackage("gh:/juce-framework/JUCE#8.0.11")
 CPMAddPackage("gh:/free-audio/clap-juce-extensions#main")
 find_package(fmt)
