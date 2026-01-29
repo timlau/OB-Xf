@@ -35,8 +35,12 @@ version_from_versionfile_or_git()
 message(STATUS "DISPLAY_VERSION=${GIT_IMPLIED_DISPLAY_VERSION}; COMMIT_HASH=${GIT_COMMIT_HASH}; BRANCH=${GIT_BRANCH}")
 
 include(cmake/CPM.cmake)
+CPMAddPackage("gh:/juce-framework/JUCE#8.0.11")
+CPMAddPackage("gh:/free-audio/clap-juce-extensions#main")
+find_package(fmt)
 
 add_subdirectory(libs)
+
 message(STATUS "After libs, MODULE_PATH is ${CMAKE_MODULE_PATH}")
 #version_from_versionfile_or_git()
 
