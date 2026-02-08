@@ -65,7 +65,6 @@ fxbuild/
 .idea
 
 # Linux
-Makefile
 surge-*.make
 premake-stamp
 cmake-stamp
